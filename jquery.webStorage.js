@@ -43,11 +43,16 @@
         if ('load' in userData && 'XMLDocument' in userData) {
           userData.load(locationHostname);
 
+          function getUserDataAttr() {
+            // We can't save a ref to XMLDoc...attr so this helps compress the file a little
+            return userData.XMLDocument.childNodes[0].attributes;
+          }
+
           localWebStorage = {
-            length: userData.XMLDocument.childNodes[0].attributes.length,
+            length: getUserDataAttr().length,
 
             key: function(index) {
-              return userData.XMLDocument.childNodes[0].attributes[index].nodeName;
+              return getUserDataAttr()[index].nodeName;
             },
 
             getItem: function(key) {
@@ -56,20 +61,20 @@
 
             setItem: function(key, data) {
               userData.setAttribute(key, stringify(data));
-              this.length = userData.XMLDocument.childNodes[0].attributes.length;
+              this.length = getUserDataAttr().length;
               userData.save(locationHostname);
             },
 
             removeItem: function(key) {
               userData.removeAttribute(key);
-              this.length = userData.XMLDocument.childNodes[0].attributes.length;
+              this.length = getUserDataAttr().length;
               userData.save(locationHostname);
             },
 
             clear: function() {
               var errorCount = 0;
-              while (userData.XMLDocument.childNodes[0].attributes.length > errorCount) {
-                var attr = userData.XMLDocument.childNodes[0].attributes[errorCount];
+              while (getUserDataAttr().length > errorCount) {
+                var attr = getUserDataAttr()[errorCount];
                 if (attr != null) {
                   userData.removeAttribute(attr.nodeName);
                 } else {
