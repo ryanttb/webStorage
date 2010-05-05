@@ -1,11 +1,15 @@
 (function($) {
   var locationHostname = location.hostname;
-  var webStorageId = locationHostname.replace(/\./g, '') + "_webStorage"; //< Used in userData & Gears
+  var webStorageId = locationHostname.replace(/\./g, '') + "_webStorage"; //< Used in userData, Gears & cookies
   var sessionWebStorage = null;
   var localWebStorage = null;
 
   $.webStorage = {
-    session: function() {
+    session: function(options) {
+      var settings = $.extend({
+        allowWindowName: false // Never set to true unless you know you want it
+      }, options);
+
       if (sessionWebStorage !== null) {
         return sessionWebStorage;
       }
@@ -15,6 +19,138 @@
         sessionWebStorage = window.sessionStorage;
         return sessionWebStorage;
       }
+
+      (function() {
+        // Cookies enabled
+        if ('cookie' in document) {
+          if (readCookie(webStorageId) === null) {
+            createCookie(webStorageId, '{}');
+          }
+
+          if (readCookie(webStorageId) !== null) {
+            function getCookieStorage() {
+              return $.parseJSON(readCookie(webStorageId)) || {};
+            }
+
+            function getCookieStorageLength(cookieStorage) {
+              var cookieStorageLength = 0;
+              for (var cookey in cookieStorage) {
+                if (cookieStorage.hasOwnProperty(cookey)) {
+                  cookieStorageLength++;
+                }
+              }
+              return cookieStorageLength;
+            }
+
+            sessionWebStorage = {
+              length: getCookieStorageLength(getCookieStorage()),
+
+              key: function(index) {
+                var cookieStorage = getCookieStorage();
+                var i = 0;
+                for (var cookey in cookieStorage) {
+                  if (cookieStorage.hasOwnProperty(cookey)) {
+                    if (i++ === index) {
+                      return cookie;
+                    }
+                  }
+                }
+                return null;
+              },
+
+              getItem: function(key) {
+                return getCookieStorage()[key] || null;
+              },
+
+              setItem: function(key, data) {
+                var cookieStorage = getCookieStorage();
+                cookieStorage[key] = data;
+                this.length = getCookieStorageLength(cookieStorage);
+                createCookie(webStorageId, stringify(cookieStorage));
+              },
+
+              removeItem: function(key) {
+                var cookieStorage = getCookieStorage();
+                delete cookieStorage[key];
+                this.length = getCookieStorageLength(cookieStorage);
+                createCookie(webStorageId, stringify(cookieStorage));
+              },
+
+              clear: function() {
+                this.length = 0;
+                eraseCookie(webStorageId);
+              }
+            };
+          }
+        }
+      })();
+
+      if (sessionWebStorage !== null) {
+        return sessionWebStorage;
+      }
+
+      (function() {
+        // Cookies disabled and we like to live dangerously (will not persist across windows)
+        if (settings.allowWindowName) {
+          function getWindowStorage() {
+            try {
+              return $.parseJSON(window.name) || {};
+            } catch (ex) {
+              return {};
+            }
+          }
+
+          function getWindowStorageLength(windowStorage) {
+            var windowStorageLength = 0;
+            for (var winkey in windowStorage) {
+              if (windowStorage.hasOwnProperty(winkey)) {
+                windowStorageLength++;
+              }
+            }
+            return windowStorageLength;
+          }
+
+          sessionWebStorage = {
+            length: getWindowStorageLength(getWindowStorage()),
+
+            key: function(index) {
+              var windowStorage = getWindowStorage();
+              var i = 0;
+              for (var winkey in windowStorage) {
+                if (windowStorage.hasOwnProperty(winkey)) {
+                  if (i++ === index) {
+                    return winkey;
+                  }
+                }
+              }
+              return null;
+            },
+
+            getItem: function(key) {
+              return getWindowStorage()[key] || null;
+            },
+
+            setItem: function(key, data) {
+              var windowStorage = getWindowStorage();
+              windowStorage[key] = data;
+              this.length = getWindowStorageLength(windowStorage);
+              window.name = stringify(windowStorage);
+            },
+
+            removeItem: function(key) {
+              var windowStorage = getWindowStorage();
+              delete windowStorage[key];
+              this.length = getWindowStorageLength(cookieStorage);
+              window.name = stringify(windowStorage);
+            },
+
+            clear: function() {
+              this.length = 0;
+              window.name = "";
+            }
+          };
+        }
+      })();
 
       return sessionWebStorage;
     },
@@ -92,7 +228,6 @@
         return localWebStorage;
       }
 
-
       (function() {
         if (window.google && google.gears) {
           // Chrome 2-3
@@ -117,7 +252,7 @@
               var i = 0;
               var rs = gearsDatabase.execute("select ItemKey from webStorage");
               while (rs.isValidRow()) {
-                if (i++ == index) {
+                if (i++ === index) {
                   return rs.field(0);
                 }
                 rs.next();
@@ -162,6 +297,30 @@
     }
   };
 
+  /*
+  Cookie functions from QuirksMode (minus expiration)
+  
+  http://www.quirksmode.org/js/cookies.html
+  */
+
+  function createCookie(name, value) {
+    document.cookie = name + "=" + value + "; path=/";
+  }
+
+  function readCookie(name) {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for (var i = 0; i < ca.length; i++) {
+      var c = ca[i];
+      while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+      if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+    }
+    return null;
+  }
+
+  function eraseCookie(name) {
+    document.cookie = name + "=; expires=-1; path=/";
+  }
 
   /*
   The stringify method from json.org.

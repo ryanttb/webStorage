@@ -1,0 +1,10 @@
+== Version 0.2.0 (2010-mayo-cinco) ==
+* Add cookie session storage
+* Add window.name session storage (shudder)
+
+== Version 0.1.0 (2010-05-03) ==
+* Add standard local storage
+* Add userData local storage
+* Add Gears local storage
+* Add standard session storage
+
