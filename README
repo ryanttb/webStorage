@@ -1,0 +1,21 @@
+webStorage - a jQuery plugin
+
+== Intro ==
+
+This plugin provides a way to get at the two new webStorage objects while also implementing fallbacks for when they're missing.
+
+== Usage ==
+
+$.webStorage.session() - get the built-in sessionStorage object or fallback to cookies or something worse (more on that later).
+
+$.webStorage.local() - get the built-in localStorage object or fallback to whatever's available. Currently, fallbacks for IE 6-7, Firefox 2 and anything with Gears (Chrome 2-3) are available.
+
+The data returned by these two methods match the webStorage spec even when fallbacks are used. Data can be primative types or objects.
+
+length - number of items in storage
+key(index) - key at a given index (keys can move around during store operations)
+getItem(key) - object stored with the given key
+setItem(key, data) - store an object with the given key
+removeItem(key) - get rid of a stored object
+clear() - get rid of everything
+

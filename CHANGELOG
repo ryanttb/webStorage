@@ -1,3 +1,8 @@
+== TODO ==
+* Firefox 2's clear method seems flaky
+* Local storage fallback for Opera
+* Local storage fallback for Safari
+
 == Version 0.2.0 (2010-mayo-cinco) ==
 * Add cookie session storage
 * Add window.name session storage (shudder)
