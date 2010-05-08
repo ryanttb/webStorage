@@ -1,5 +1,10 @@
+== Version 0.3.0 (2010-05-08) ==
+* Wrap all operations in stringify including HTML web storage
+** All the browsers call .toString() against spec...at least they're consistent
+
 == TODO ==
-* Firefox 2's clear method seems flaky
+* I remember Firefox 2's clear method being flaky
+* Compress cookie and window.name session storage into a obj-generating fcn
 * Local storage fallback for Opera
 * Local storage fallback for Safari
 

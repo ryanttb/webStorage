@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>WebStorage Test</title>
+</head>
+<body>
+  <h1>
+    WebStorageTest</h1>
+  <p>
+    This page tests my web storage plugin.</p>
+  <p>
+    The following table tests the presence of any form of webStorage through our plugin.</p>
+  <table>
+    <tr>
+      <th>
+        session
+      </th>
+      <th>
+        local
+      </th>
+    </tr>
+    <tr>
+      <td data-text="hasSession">
+      </td>
+      <td data-text="hasLocal">
+      </td>
+    </tr>
+  </table>
+  <h2>
+    Simple strings</h2>
+  <h3>
+    Session</h3>
+  <p>
+    This section will allow you to save and restore a string value to session storage.
+  </p>
+  <input type="text" id="txtSessionStringKey" value="key" />
+  <input type="text" id="txtSessionStringValue" />
+  <input type="button" id="cmdSessionStringSave" value="Save" />
+  <input type="button" id="cmdSessionStringLoad" value="Load" />
+  <input type="button" id="cmdSessionStringClearValue" value="Clear input" />
+  <input type="button" id="cmdSessionStringClearStorage" value="Clear storage" />
+  <h3>
+    Local</h3>
+  <p>
+    This section will allow you to save and restore a string value to local storage if it's available.</p>
+  <input type="text" id="txtLocalStringKey" value="key" />
+  <input type="text" id="txtLocalStringValue" />
+  <input type="button" id="cmdLocalStringSave" value="Save" />
+  <input type="button" id="cmdLocalStringLoad" value="Load" />
+  <input type="button" id="cmdLocalStringClearValue" value="Clear input" />
+  <input type="button" id="cmdLocalStringClearStorage" value="Clear storage" />
+  <h2>
+    Objects</h2>
+  <h3>
+    Session</h3>
+  <p>
+    This section will allow you to save and restore an object to session storage. This dangerous <b>example</b> will call eval on the text you enter and store the object.
+  </p>
+  <input type="text" id="txtSessionObjectKey" value="objKey" />
+  <textarea id="txtSessionObjectValue" cols="32" rows="5"></textarea>
+  <input type="button" id="cmdSessionObjectSave" value="Save" />
+  <input type="button" id="cmdSessionObjectLoad" value="Load" />
+  <input type="button" id="cmdSessionObjectClearValue" value="Clear input" />
+  <input type="button" id="cmdSessionObjectClearStorage" value="Clear storage" />
+  <h3>
+    Local</h3>
+  <p>
+    This section will allow you to save and restore an object to local storage if it's available. This dangerous <b>example</b> will call eval on the text you enter and store the object.</p>
+  <input type="text" id="txtLocalObjectKey" value="objKey" />
+  <textarea id="txtLocalObjectValue" cols="32" rows="5"></textarea>
+  <input type="button" id="cmdLocalObjectSave" value="Save" />
+  <input type="button" id="cmdLocalObjectLoad" value="Load" />
+  <input type="button" id="cmdLocalObjectClearValue" value="Clear input" />
+  <input type="button" id="cmdLocalObjectClearStorage" value="Clear storage" />
+
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+
+  <script type="text/javascript" src="jquery.webStorage.js"></script>
+
+  <script type="text/javascript">
+    $(function() {
+      if ($.webStorage.session({ allowWindowName: true }) != null) {
+        $("[data-text=hasSession]").text("yes");
+
+        $("#cmdSessionStringSave").click(function() {
+          if ($("#txtSessionStringKey").val()) {
+            $.webStorage.session().setItem($("#txtSessionStringKey").val(), $("#txtSessionStringValue").val());
+          } else {
+            alert("Please enter a key");
+          }
+        });
+
+        $("#cmdSessionStringLoad").click(function() {
+          if ($("#txtSessionStringKey").val()) {
+            $("#txtSessionStringValue").val($.webStorage.session().getItem($("#txtSessionStringKey").val()));
+          } else {
+            alert("Please enter a key");
+          }
+        }).click();
+
+        $("#cmdSessionStringClearValue").click(function() {
+          $("#txtSessionStringValue").val("");
+        });
+
+        $("#cmdSessionStringClearStorage").click(function() {
+          $.webStorage.session().clear();
+        });
+
+        $("#cmdSessionObjectSave").click(function() {
+          if ($("#txtSessionObjectKey").val()) {
+            var valObj = eval("(" + $("#txtSessionObjectValue").val() + ")");
+            $.webStorage.session().setItem($("#txtSessionObjectKey").val(), valObj);
+          } else {
+            alert("Please enter a key");
+          }
+        });
+
+        $("#cmdSessionObjectLoad").click(function() {
+          if ($("#txtSessionObjectKey").val()) {
+            var valObj = $.webStorage.session().getItem($("#txtSessionObjectKey").val());
+            for (var prop in valObj) {
+              if (valObj.hasOwnProperty(prop)) {
+                alert(prop + ": " + valObj[prop]);
+              }
+            }
+          } else {
+            alert("Please enter a key");
+          }
+        }).click();
+
+        $("#cmdSessionObjectClearValue").click(function() {
+          $("#txtSessionObjectValue").val("");
+        });
+
+        $("#cmdSessionObjectClearStorage").click(function() {
+          $.webStorage.session().clear();
+        });
+      } else {
+        $("[data-text=hasSession]").text("no");
+      }
+
+      if ($.webStorage.local() != null) {
+        $("[data-text=hasLocal]").text("yes");
+
+        $("#cmdLocalStringSave").click(function() {
+          if ($("#txtLocalStringKey").val()) {
+            $.webStorage.local().setItem($("#txtLocalStringKey").val(), $("#txtLocalStringValue").val());
+          } else {
+            alert("Please enter a key");
+          }
+        });
+
+        $("#cmdLocalStringLoad").click(function() {
+          if ($("#txtLocalStringKey").val()) {
+            $("#txtLocalStringValue").val($.webStorage.local().getItem($("#txtLocalStringKey").val()));
+          } else {
+            alert("Please enter a key");
+          }
+        }).click();
+
+        $("#cmdLocalStringClearValue").click(function() {
+          $("#txtLocalStringValue").val("");
+        });
+
+        $("#cmdLocalStringClearStorage").click(function() {
+          $.webStorage.local().clear();
+        });
+
+        $("#cmdLocalObjectSave").click(function() {
+          if ($("#txtLocalObjectKey").val()) {
+            var valObj = eval("(" + $("#txtLocalObjectValue").val() + ")");
+            $.webStorage.local().setItem($("#txtLocalObjectKey").val(), valObj);
+          } else {
+            alert("Please enter a key");
+          }
+        });
+
+        $("#cmdLocalObjectLoad").click(function() {
+          if ($("#txtLocalObjectKey").val()) {
+            var valObj = $.webStorage.local().getItem($("#txtLocalObjectKey").val());
+            for (var prop in valObj) {
+              if (valObj.hasOwnProperty(prop)) {
+                alert(prop + ": " + valObj[prop]);
+              }
+            }
+          } else {
+            alert("Please enter a key");
+          }
+        }).click();
+
+        $("#cmdLocalObjectClearValue").click(function() {
+          $("#txtLocalObjectValue").val("");
+        });
+
+        $("#cmdLocalObjectClearStorage").click(function() {
+          $.webStorage.local().clear();
+        });
+      } else {
+        $("[data-text=hasLocal]").text("no");
+      }
+    });
+  </script>
+
+</body>
+</html>
+

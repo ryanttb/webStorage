@@ -16,7 +16,7 @@
 
       if ('sessionStorage' in window) {
         // Firefox 3.5, IE 8
-        sessionWebStorage = window.sessionStorage;
+        sessionWebStorage = makeJsonStorage(window.sessionStorage, function() { return window.sessionStorage.length; });
         return sessionWebStorage;
       }
 
@@ -29,10 +29,15 @@
 
           if (readCookie(webStorageId) !== null) {
             function getCookieStorage() {
-              return $.parseJSON(readCookie(webStorageId)) || {};
+              try {
+                return $.parseJSON(readCookie(webStorageId)) || {};
+              } catch (ex) {
+                return {};
+              }
             }
 
-            function getCookieStorageLength(cookieStorage) {
+            function getCookieStorageLength() {
+              var cookieStorage = getCookieStorage();
               var cookieStorageLength = 0;
               for (var cookey in cookieStorage) {
                 if (cookieStorage.hasOwnProperty(cookey)) {
@@ -42,9 +47,7 @@
               return cookieStorageLength;
             }
 
-            sessionWebStorage = {
-              length: getCookieStorageLength(getCookieStorage()),
-
+            var cookieSessionStorage = {
               key: function(index) {
                 var cookieStorage = getCookieStorage();
                 var i = 0;
@@ -65,22 +68,21 @@
               setItem: function(key, data) {
                 var cookieStorage = getCookieStorage();
                 cookieStorage[key] = data;
-                this.length = getCookieStorageLength(cookieStorage);
                 createCookie(webStorageId, stringify(cookieStorage));
               },
 
               removeItem: function(key) {
                 var cookieStorage = getCookieStorage();
                 delete cookieStorage[key];
-                this.length = getCookieStorageLength(cookieStorage);
                 createCookie(webStorageId, stringify(cookieStorage));
               },
 
               clear: function() {
-                this.length = 0;
                 eraseCookie(webStorageId);
               }
             };
+
+            sessionWebStorage = makeJsonStorage(cookieSessionStorage, getCookieStorageLength);
           }
         }
       })();
@@ -100,7 +102,8 @@
             }
           }
 
-          function getWindowStorageLength(windowStorage) {
+          function getWindowStorageLength() {
+            var windowStorage = getWindowStorage();
             var windowStorageLength = 0;
             for (var winkey in windowStorage) {
               if (windowStorage.hasOwnProperty(winkey)) {
@@ -110,9 +113,7 @@
             return windowStorageLength;
           }
 
-          sessionWebStorage = {
-            length: getWindowStorageLength(getWindowStorage()),
-
+          var windowSessionStorage = {
             key: function(index) {
               var windowStorage = getWindowStorage();
               var i = 0;
@@ -133,22 +134,21 @@
             setItem: function(key, data) {
               var windowStorage = getWindowStorage();
               windowStorage[key] = data;
-              this.length = getWindowStorageLength(windowStorage);
               window.name = stringify(windowStorage);
             },
 
             removeItem: function(key) {
               var windowStorage = getWindowStorage();
               delete windowStorage[key];
-              this.length = getWindowStorageLength(cookieStorage);
               window.name = stringify(windowStorage);
             },
 
             clear: function() {
-              this.length = 0;
-              window.name = "";
+              window.name = '{}';
             }
           };
+
+          sessionWebStorage = makeJsonStorage(windowSessionStorage, getWindowStorageLength);
         }
       })();
 
@@ -162,13 +162,13 @@
 
       if ('localStorage' in window) {
         // Chrome 4, Firefox 3.5+, IE 8, Opera 10.5
-        localWebStorage = window.localStorage;
+        localWebStorage = makeJsonStorage(window.localStorage, function() { return window.localStorage.length; });
         return localWebStorage;
       }
 
       if (globalStorage != null) {
         // Firefox 2-3.5
-        localWebStorage = globalStorage[locationHostname];
+        localWebStorage = makeJsonStorage(globalStorage[locationHostname], function() { return globalStorage[locationHostname]; });
         return localWebStorage;
       }
 
@@ -184,26 +184,26 @@
             return userData.XMLDocument.childNodes[0].attributes;
           }
 
-          localWebStorage = {
-            length: getUserDataAttr().length,
+          function getUserDataStorageLength() {
+            return getUserDataAttr().length;
+          }
 
+          var userDataLocalStorage = {
             key: function(index) {
               return getUserDataAttr()[index].nodeName;
             },
 
             getItem: function(key) {
-              return $.parseJSON(userData.getAttribute(key));
+              return userData.getAttribute(key);
             },
 
             setItem: function(key, data) {
-              userData.setAttribute(key, stringify(data));
-              this.length = getUserDataAttr().length;
+              userData.setAttribute(key, data);
               userData.save(locationHostname);
             },
 
             removeItem: function(key) {
               userData.removeAttribute(key);
-              this.length = getUserDataAttr().length;
               userData.save(locationHostname);
             },
 
@@ -217,10 +217,11 @@
                   errorCount++;
                 }
               }
-              this.length = 0;
               userData.save(locationHostname);
             }
-          }
+          };
+
+          localWebStorage = makeJsonStorage(userDataLocalStorage, getUserDataStorageLength);
         }
       })();
 
@@ -245,9 +246,7 @@
             return gearsDataBaseLength;
           }
 
-          localWebStorage = {
-            length: getGearsDatabaseLength(),
-
+          var gearsLocalStorage = {
             key: function(index) {
               var i = 0;
               var rs = gearsDatabase.execute("select ItemKey from webStorage");
@@ -265,7 +264,7 @@
               var value = null;
               var rs = gearsDatabase.execute("select ItemValue from webStorage where ItemKey = ?", [key]);
               if (rs.isValidRow()) {
-                value = $.parseJSON(rs.field(0));
+                value = rs.field(0);
               }
               rs.close();
               return value;
@@ -273,29 +272,55 @@
 
             setItem: function(key, data) {
               if (this.key(key) != null) {
-                gearsDatabase.execute("update webStorage set ItemValue = ? where ItemKey = ?", [stringify(data), key]);
+                gearsDatabase.execute("update webStorage set ItemValue = ? where ItemKey = ?", [data, key]);
               } else {
-                gearsDatabase.execute("insert into webStorage values (?, ?)", [key, stringify(data)]);
+                gearsDatabase.execute("insert into webStorage values (?, ?)", [key, data]);
               }
-              this.length = getGearsDatabaseLength();
             },
 
             removeItem: function(key) {
               gearsDatabase.execute("delete from webStorage where ItemKey = ?", [key]);
-              this.length = getGearsDatabaseLength();
             },
 
             clear: function() {
               gearsDatabase.execute("delete from webStorage");
-              this.length = 0;
             }
-          }
+          };
+
+          localWebStorage = makeJsonStorage(gearsLocalStorage, getGearsDatabaseLength);          
         }
       })();
 
       return localWebStorage;
     }
   };
+
+  function makeJsonStorage(storageObj, getLengthMethod) {
+    return {
+      length: getLengthMethod(),
+
+      key: storageObj.key,
+
+      getItem: function(key) {
+        return $.parseJSON(storageObj.getItem(key));
+      },
+
+      setItem: function(key, data) {
+        storageObj.setItem(key, stringify(data));
+        this.length = getLengthMethod();
+      },
+
+      removeItem: function(key) {
+        storageObj.removeItem(key);
+        this.length = getLengthMethod();
+      },
+
+      clear: function() {
+        storageObj.clear();
+        this.length = 0;
+      }
+    };
+  }
 
   /*
   Cookie functions from QuirksMode (minus expiration)
