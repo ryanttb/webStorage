@@ -1,5 +1,6 @@
 == Version 0.3.1 (2010-09-24) ==
 * [BUG] Bad syntax used while checking for globalStorage
+* [BUG] Bad globalStorage length function 
 * [BUG] Error reading cookies out of session
 
 == TODO ==

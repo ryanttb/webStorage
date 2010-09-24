@@ -168,7 +168,7 @@
 
       if (typeof globalStorage !== 'undefined') {
         // Firefox 2-3.5
-        localWebStorage = makeJsonStorage(globalStorage[locationHostname], function() { return globalStorage[locationHostname]; });
+        localWebStorage = makeJsonStorage(globalStorage[locationHostname], function() { return globalStorage[locationHostname].length; });
         return localWebStorage;
       }
 
