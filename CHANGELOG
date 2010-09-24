@@ -1,12 +1,16 @@
-== Version 0.3.0 (2010-05-08) ==
-* Wrap all operations in stringify including HTML web storage
-** All the browsers call .toString() against spec...at least they're consistent
+== Version 0.3.1 (2010-09-24) ==
+* [BUG] Bad syntax used while checking for globalStorage
+* [BUG] Error reading cookies out of session
 
 == TODO ==
 * I remember Firefox 2's clear method being flaky
-* Compress cookie and window.name session storage into a obj-generating fcn
+* [FOOTPRINT] Compress cookie and window.name session storage into a obj-generating fcn
 * Local storage fallback for Opera
 * Local storage fallback for Safari
+
+== Version 0.3.0 (2010-05-08) ==
+* Wrap all operations in stringify including HTML web storage
+** All the browsers call .toString() against spec...at least they're consistent
 
 == Version 0.2.0 (2010-mayo-cinco) ==
 * Add cookie session storage

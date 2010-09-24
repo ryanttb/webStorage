@@ -41,6 +41,7 @@
   <input type="button" id="cmdSessionStringClearStorage" value="Clear storage" />
   <h3>
     Local</h3>
+  <div>
   <p>
     This section will allow you to save and restore a string value to local storage if it's available.</p>
   <input type="text" id="txtLocalStringKey" value="key" />
@@ -49,6 +50,12 @@
   <input type="button" id="cmdLocalStringLoad" value="Load" />
   <input type="button" id="cmdLocalStringClearValue" value="Clear input" />
   <input type="button" id="cmdLocalStringClearStorage" value="Clear storage" />
+  </div>
+  <div>
+    <input type="button" id="cmdLocalDump" value="Dump Storage" /> (click to dump all key/value pairs in storage)
+    <div id="pnlLocalDump">
+    </div>
+  </div>
   <h2>
     Objects</h2>
   <h3>
@@ -194,6 +201,16 @@
 
         $("#cmdLocalObjectClearStorage").click(function() {
           $.webStorage.local().clear();
+        });
+
+        $("#cmdLocalDump").click(function() {
+          var localData = "";
+          for (var i = 0; i < $.webStorage.local().length; i++) {
+            var key = $.webStorage.local().key(i);
+            localData += key + ": " + $.webStorage.local().getItem(key) + "<br>";
+          }
+          $("#pnlLocalDump").html(localData);
+
         });
       } else {
         $("[data-text=hasLocal]").text("no");

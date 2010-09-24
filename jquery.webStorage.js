@@ -15,7 +15,7 @@
       }
 
       if ('sessionStorage' in window) {
-        // Firefox 3.5, IE 8
+        // Firefox 3.5, IE 8, Chrome 5
         sessionWebStorage = makeJsonStorage(window.sessionStorage, function() { return window.sessionStorage.length; });
         return sessionWebStorage;
       }
@@ -54,7 +54,7 @@
                 for (var cookey in cookieStorage) {
                   if (cookieStorage.hasOwnProperty(cookey)) {
                     if (i++ === index) {
-                      return cookie;
+                      return cookey;
                     }
                   }
                 }
@@ -166,7 +166,7 @@
         return localWebStorage;
       }
 
-      if (globalStorage != null) {
+      if (typeof globalStorage !== 'undefined') {
         // Firefox 2-3.5
         localWebStorage = makeJsonStorage(globalStorage[locationHostname], function() { return globalStorage[locationHostname]; });
         return localWebStorage;
@@ -299,7 +299,9 @@
     return {
       length: getLengthMethod(),
 
-      key: storageObj.key,
+      key: function(index) {
+        return storageObj.key(index);
+      },
 
       getItem: function(key) {
         return $.parseJSON(storageObj.getItem(key));
