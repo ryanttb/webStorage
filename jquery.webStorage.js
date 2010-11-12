@@ -174,8 +174,10 @@
 
       (function() {
         // IE 6-7
-        var $userData = $('<div id="' + webStorageId + '" style="behavior: url(#default#userdata); display: none;" />').appendTo($("body"));
-        var userData = $userData[0];
+        var userData = document.createElement("div");
+        userData.style.behavior = "url(#default#userdata)";
+        document.getElementsByTagName("body")[0].appendChild(userData);
+
         if ('load' in userData && 'XMLDocument' in userData) {
           userData.load(locationHostname);
 
