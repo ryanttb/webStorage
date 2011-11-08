@@ -1,0 +1,11 @@
+﻿==to do==
+
+===0.3.0===
+* [bug] $.webStorage.local().key(i) causes a JS exception: "Illegal operation on WrappedNative prototype object"
+* [bug] literal non-object types do not store/extract correctly, e.g., true, false, 3.5
+* make as a true HTML5 shim
+* storage event
+
+==2011-10-15==
+===regroup===
+It's been a while since I've opened this project. I would like to reboot it.

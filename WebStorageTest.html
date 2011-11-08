@@ -2,6 +2,12 @@
 <html>
 <head>
   <title>WebStorage Test</title>
+  <style type="text/css">
+    #storageEvent th
+    {
+      text-align: right;
+    }
+  </style>
 </head>
 <body>
   <h1>
@@ -23,6 +29,47 @@
       <td data-text="hasSession">
       </td>
       <td data-text="hasLocal">
+      </td>
+    </tr>
+  </table>
+  <h2>
+    storage event</h2>
+  <p>
+    The storage event fires whenever a storage area changes, i.e., whenever you call setItem, removeItem or clear on sessionStorage or localStorage. The following watches the activity on this page.</p>
+  <table id="storageEvent">
+    <tr>
+      <th>
+        key
+      </th>
+      <td data-text="eventKey">
+      </td>
+    </tr>
+    <tr>
+      <th>
+        oldValue
+      </th>
+      <td data-text="eventOldValue">
+      </td>
+    </tr>
+    <tr>
+      <th>
+        newValue
+      </th>
+      <td data-text="eventNewValue">
+      </td>
+    </tr>
+    <tr>
+      <th>
+        url
+      </th>
+      <td data-text="eventUrl">
+      </td>
+    </tr>
+    <tr>
+      <th>
+        storageArea
+      </th>
+      <td data-text="eventStorageArea">
       </td>
     </tr>
   </table>
@@ -214,6 +261,23 @@
         });
       } else {
         $("[data-text=hasLocal]").text("no");
+      }
+
+      if (document.onstorage !== undefined) {
+        // IE8
+        $(document).bind("storage", function(e) {
+          alert(e);
+        });
+      } else if (window.onstorage !== undefined) {
+        // Not IE8
+        $(window).bind("storage", function(e) {
+          debugger;
+          for (var key in e) {
+            if (e.hasOwnProperty(key)) {
+              alert(key + ": " + e[key]);
+            }
+          }
+        });
       }
     });
   </script>
